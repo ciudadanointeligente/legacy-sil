@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+                "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="cl.ciudadanointeligente.sil.model">
+	<class name="Author" table="Autor">
+		<id name="id" column="id_autor">
+			<generator class="identity"/>
+		</id>
+		<property name="firstName" column="nombre"/>
+		<property name="lastName" column="apellidos"/>
+		<property name="position" column="cargo"/>
+		<property name="period" column="periodos"/>
+		<property name="parlamentarianId" column="id_parlamentario"/>
+		<property name="createdAt" column="created_at"/>
+		<property name="updatedAt" column="updated_at"/>
+	</class>
+</hibernate-mapping>
