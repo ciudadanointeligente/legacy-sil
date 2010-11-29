@@ -24,6 +24,7 @@ public class Sil {
 		BillParser billParser = new BillParser ();
 		Date startDate = null;
 		Date endDate = null;
+		String bulletinNumber = null;
 
 		if (args.length == 0) {
 			startDate = new Date ();
@@ -35,7 +36,7 @@ public class Sil {
 				endDate = startDate;
 				System.out.println ("Procesando: " + df.format (startDate));
 			} catch (ParseException pex) {
-				System.err.println ("Fecha inválida");
+				bulletinNumber = args[0];
 			}
 		} else {
 			try {
@@ -48,8 +49,13 @@ public class Sil {
 		}
 
 		try {
-			for (Bill newBill : billParser.getBills (startDate, endDate)) {
+			if (bulletinNumber != null) {
+				Bill newBill = billParser.getBill(bulletinNumber);
 				processBill (newBill);
+			} else {
+				for (Bill newBill : billParser.getBills (startDate, endDate)) {
+					processBill (newBill);
+				}
 			}
 		} catch (Throwable ex) {
 			ex.printStackTrace (System.err);

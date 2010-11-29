@@ -25,6 +25,7 @@ import java.util.Set;
 public class BillParser {
 	private final String SIL_BASE_URL = "http://sil.senado.cl/cgi-bin/";
 	private final String SIL_BILL_SUMMARY_URL = SIL_BASE_URL + "sil_ultproy.pl";
+	private final String SIL_BILL_URL = SIL_BASE_URL + "sil_proyectos.pl";
 
 	private DateFormat df;
 	private DateFormat bdf;
@@ -71,6 +72,23 @@ public class BillParser {
 		}
 
 		return bills;
+	}
+
+	public Bill getBill (String searchBulletinNumber) throws Throwable {
+		if (searchBulletinNumber == null || searchBulletinNumber.length() == 0) {
+			throw new Exception ("Boletín inválido");
+		}
+
+		URL url = new URL (SIL_BILL_URL);
+		URLConnection billConnection = url.openConnection ();
+		billConnection.setDoOutput (true);
+
+		OutputStreamWriter out = new OutputStreamWriter (billConnection.getOutputStream ());
+		out.write ("nboletin=" + searchBulletinNumber + "&buscar=%3E%3E+Buscar");
+		out.close ();
+
+		TagNode billDocument = cleaner.clean (new InputStreamReader (billConnection.getInputStream (), "ISO-8859-1"));
+		return parseBillDocument(billDocument);
 	}
 
 	@SuppressWarnings("unchecked")
