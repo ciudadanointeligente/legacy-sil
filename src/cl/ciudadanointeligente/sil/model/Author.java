@@ -15,72 +15,72 @@ public class Author implements Serializable {
 	private Date createdAt;
 	private Date updatedAt;
 
-	public Long getId () {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId (Long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public String getFirstName () {
+	public String getFirstName() {
 		return firstName;
 	}
 
-	public void setFirstName (String firstName) {
+	public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
 
-	public String getLastName () {
+	public String getLastName() {
 		return lastName;
 	}
 
-	public void setLastName (String lastName) {
+	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
 
-	public String getPosition () {
+	public String getPosition() {
 		return position;
 	}
 
-	public void setPosition (String position) {
+	public void setPosition(String position) {
 		this.position = position;
 	}
 
-	public String getPeriod () {
+	public String getPeriod() {
 		return period;
 	}
 
-	public void setPeriod (String period) {
+	public void setPeriod(String period) {
 		this.period = period;
 	}
 
-	public Long getParlamentarianId () {
+	public Long getParlamentarianId() {
 		return parlamentarianId;
 	}
 
-	public void setParlamentarianId (Long parlamentarianId) {
+	public void setParlamentarianId(Long parlamentarianId) {
 		this.parlamentarianId = parlamentarianId;
 	}
 
-	public Date getCreatedAt () {
+	public Date getCreatedAt() {
 		return createdAt;
 	}
 
-	public void setCreatedAt (Date createdAt) {
+	public void setCreatedAt(Date createdAt) {
 		this.createdAt = createdAt;
 	}
 
-	public Date getUpdatedAt () {
+	public Date getUpdatedAt() {
 		return updatedAt;
 	}
 
-	public void setUpdatedAt (Date updatedAt) {
+	public void setUpdatedAt(Date updatedAt) {
 		this.updatedAt = updatedAt;
 	}
 
 	@Override
-	public String toString () {
+	public String toString() {
 		return lastName + ", " + firstName;
 	}
 }

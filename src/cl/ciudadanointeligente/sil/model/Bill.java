@@ -33,203 +33,203 @@ public class Bill implements Serializable {
 	private Date updatedAt;
 	private Set<Author> authors;
 
-	public Long getId () {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId (Long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public String getBulletinNumber () {
+	public String getBulletinNumber() {
 		return bulletinNumber;
 	}
 
-	public void setBulletinNumber (String bulletinNumber) {
+	public void setBulletinNumber(String bulletinNumber) {
 		this.bulletinNumber = bulletinNumber;
 	}
 
-	public String getTitle () {
+	public String getTitle() {
 		return title;
 	}
 
-	public void setTitle (String title) {
+	public void setTitle(String title) {
 		this.title = title;
 	}
 
-	public String getSessionTitle () {
+	public String getSessionTitle() {
 		return sessionTitle;
 	}
 
-	public void setSessionTitle (String sessionTitle) {
+	public void setSessionTitle(String sessionTitle) {
 		this.sessionTitle = sessionTitle;
 	}
 
-	public Date getEntryDate () {
+	public Date getEntryDate() {
 		return entryDate;
 	}
 
-	public void setEntryDate (Date entryDate) {
+	public void setEntryDate(Date entryDate) {
 		this.entryDate = entryDate;
 	}
 
-	public String getInitiative () {
+	public String getInitiative() {
 		return initiative;
 	}
 
-	public void setInitiative (String initiative) {
+	public void setInitiative(String initiative) {
 		this.initiative = initiative;
 	}
 
-	public String getType () {
+	public String getType() {
 		return type;
 	}
 
-	public void setType (String type) {
+	public void setType(String type) {
 		this.type = type;
 	}
 
-	public String getOriginChamber () {
+	public String getOriginChamber() {
 		return originChamber;
 	}
 
-	public void setOriginChamber (String originChamber) {
+	public void setOriginChamber(String originChamber) {
 		this.originChamber = originChamber;
 	}
 
-	public String getUrgency () {
+	public String getUrgency() {
 		return urgency;
 	}
 
-	public void setUrgency (String urgency) {
+	public void setUrgency(String urgency) {
 		this.urgency = urgency;
 	}
 
-	public String getStage () {
+	public String getStage() {
 		return stage;
 	}
 
-	public void setStage (String stage) {
+	public void setStage(String stage) {
 		this.stage = stage;
 	}
 
-	public String getSubstage () {
+	public String getSubstage() {
 		return substage;
 	}
 
-	public void setSubstage (String substage) {
+	public void setSubstage(String substage) {
 		this.substage = substage;
 	}
 
-	public Long getLaw () {
+	public Long getLaw() {
 		return law;
 	}
 
-	public void setLaw (Long law) {
+	public void setLaw(Long law) {
 		this.law = law;
 	}
 
-	public String getLawUrl () {
+	public String getLawUrl() {
 		return lawUrl;
 	}
 
-	public void setLawUrl (String lawUrl) {
+	public void setLawUrl(String lawUrl) {
 		this.lawUrl = lawUrl;
 	}
 
-	public Long getDecree () {
+	public Long getDecree() {
 		return decree;
 	}
 
-	public void setDecree (Long decree) {
+	public void setDecree(Long decree) {
 		this.decree = decree;
 	}
 
-	public String getDecreeUrl () {
+	public String getDecreeUrl() {
 		return decreeUrl;
 	}
 
-	public void setDecreeUrl (String decreeUrl) {
+	public void setDecreeUrl(String decreeUrl) {
 		this.decreeUrl = decreeUrl;
 	}
 
-	public Date getPublishDate () {
+	public Date getPublishDate() {
 		return publishDate;
 	}
 
-	public void setPublishDate (Date publishDate) {
+	public void setPublishDate(Date publishDate) {
 		this.publishDate = publishDate;
 	}
 
-	public Long getMatterId () {
+	public Long getMatterId() {
 		return matterId;
 	}
 
-	public void setMatterId (Long matterId) {
+	public void setMatterId(Long matterId) {
 		this.matterId = matterId;
 	}
 
-	public Long getInternalNumber () {
+	public Long getInternalNumber() {
 		return internalNumber;
 	}
 
-	public void setInternalNumber (Long internalNumber) {
+	public void setInternalNumber(Long internalNumber) {
 		this.internalNumber = internalNumber;
 	}
 
-	public Long getAdvance () {
+	public Long getAdvance() {
 		return advance;
 	}
 
-	public void setAdvance (Long advance) {
+	public void setAdvance(Long advance) {
 		this.advance = advance;
 	}
 
-	public Long getProcessingNumber () {
+	public Long getProcessingNumber() {
 		return processingNumber;
 	}
 
-	public void setProcessingNumber (Long processingNumber) {
+	public void setProcessingNumber(Long processingNumber) {
 		this.processingNumber = processingNumber;
 	}
 
-	public String getProcessingActive () {
+	public String getProcessingActive() {
 		return processingActive;
 	}
 
-	public void setProcessingActive (String processingActive) {
+	public void setProcessingActive(String processingActive) {
 		this.processingActive = processingActive;
 	}
 
-	public String getSummary () {
+	public String getSummary() {
 		return summary;
 	}
 
-	public void setSummary (String summary) {
+	public void setSummary(String summary) {
 		this.summary = summary;
 	}
 
-	public Date getCreatedAt () {
+	public Date getCreatedAt() {
 		return createdAt;
 	}
 
-	public void setCreatedAt (Date createdAt) {
+	public void setCreatedAt(Date createdAt) {
 		this.createdAt = createdAt;
 	}
 
-	public Date getUpdatedAt () {
+	public Date getUpdatedAt() {
 		return updatedAt;
 	}
 
-	public void setUpdatedAt (Date updatedAt) {
+	public void setUpdatedAt(Date updatedAt) {
 		this.updatedAt = updatedAt;
 	}
 
-	public Set<Author> getAuthors () {
+	public Set<Author> getAuthors() {
 		return authors;
 	}
 
-	public void setAuthors (Set<Author> authors) {
+	public void setAuthors(Set<Author> authors) {
 		this.authors = authors;
 	}
 }

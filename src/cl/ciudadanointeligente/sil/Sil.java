@@ -160,7 +160,7 @@ public class Sil {
 				}
 			}
 		} catch (Throwable ex) {
-			session.getTransaction ().rollback ();
+			session.getTransaction().rollback();
 			throw ex;
 		}
 	}
