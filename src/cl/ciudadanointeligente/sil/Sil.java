@@ -37,6 +37,7 @@ public class Sil {
 				System.out.println ("Procesando: " + df.format (startDate));
 			} catch (ParseException pex) {
 				bulletinNumber = args[0];
+				System.out.println ("Procesando boletín: " + bulletinNumber);
 			}
 		} else {
 			try {
