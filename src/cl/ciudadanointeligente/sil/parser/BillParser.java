@@ -14,6 +14,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,6 +31,7 @@ public class BillParser {
 	private DateFormat df;
 	private DateFormat bdf;
 	private DateFormat dfLey;
+	private DateFormat dfLeyAlt;
 	private NumberFormat nfLey;
 	private HtmlCleaner cleaner;
 
@@ -37,6 +39,7 @@ public class BillParser {
 		df = new SimpleDateFormat ("dd/MM/yyyy");
 		bdf = new SimpleDateFormat ("EEEE d 'de' MMMM, yyyy", new Locale ("es", "CL"));
 		dfLey = new SimpleDateFormat ("yyyy-MM-dd");
+		dfLeyAlt = new SimpleDateFormat ("dd/MM/yy");
 		nfLey = new DecimalFormat ("###,###,###", new DecimalFormatSymbols (new Locale ("es", "CL")));
 		cleaner = new HtmlCleaner ();
 	}
@@ -124,9 +127,17 @@ public class BillParser {
 		TagNode linkLey = spanDetalle[spanDetalle.length == 7 ? 6 : 7].findElementByName ("a", true);
 
 		if (linkLey != null) {
-			String bcnUrl = linkLey.getAttributeByName ("onClick").replaceAll (".*'(http://.*?)',.*", "$1");
+			String bcnUrl = linkLey.getAttributeByName ("onClick").replaceAll (".*'\\s*(http://.*?)',.*", "$1");
 			Long bcnId = (Long) nfLey.parse (linkLey.getText ().toString ().trim ().replaceAll ("Ley\\s+N.\\s*", "").replaceAll ("D[\\.]{0,1}\\s*S[\\.]{0,1}\\s*(N.){0,1}\\s*", ""));
 			Date bcnDate = bcnUrl.matches (".*idVersion=\\d\\d\\d\\d-\\d\\d-\\d\\d") ? dfLey.parse (bcnUrl.replaceAll (".*idVersion=(\\d\\d\\d\\d-\\d\\d-\\d\\d)", "$1")) : null;
+
+			if (bcnDate == null) {
+				try {
+					bcnDate = dfLeyAlt.parse(linkLey.getParent().getText().toString().trim ().replaceAll(".*\\(D\\.Oficial: (\\d\\d/\\d\\d/\\d\\d)\\).*", "$1"));
+				} catch (ParseException pe) {
+					System.err.println ("WARN: No se pudo determinar fecha de publicación para esta ley o decreto");
+				}
+			}
 
 			if (bcnUrl.matches ("^http://.*?/Navegar\\?idLey=.*")) {
 				bill.setLaw (bcnId);
