@@ -5,10 +5,12 @@ import cl.ciudadanointeligente.sil.model.Bill;
 import cl.ciudadanointeligente.sil.parser.BillParser;
 
 import org.hibernate.Criteria;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
+import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -82,6 +84,17 @@ public class Sil {
 				List<Author> oldAuthors = criteria.list ();
 
 				if (oldAuthors.size () == 0) {
+					SQLQuery query = session.createSQLQuery ("SELECT id_parlamentario FROM Parlamentario WHERE nombre LIKE ? AND apellidos LIKE ? ORDER BY id_parlamentario DESC LIMIT 1");
+					query.setParameter(0, newAuthor.getFirstName ().toUpperCase ());
+					query.setParameter(1, newAuthor.getLastName ().toUpperCase ());
+					BigInteger parlamentarianId = (BigInteger) query.uniqueResult ();
+
+					if (parlamentarianId != null) {
+						newAuthor.setParlamentarianId (parlamentarianId.longValue ());
+					} else {
+						System.err.println ("WARN: no se ha encontrado un parlamentario para " + newAuthor.toString());
+					}
+
 					session.save (newAuthor);
 					authors.add (newAuthor);
 				} else {
