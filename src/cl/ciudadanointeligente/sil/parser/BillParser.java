@@ -1,11 +1,9 @@
 package cl.ciudadanointeligente.sil.parser;
 
-import cl.ciudadanointeligente.sil.model.Author;
 import cl.ciudadanointeligente.sil.model.Bill;
-
+import cl.ciudadanointeligente.sil.model.Person;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
-
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
@@ -67,7 +65,8 @@ public class BillParser {
 
 		for (TagNode linkCell : linkCells) {
 			TagNode linkNode = linkCell.findElementByName("a", true);
-			URL billUrl = new URL(SIL_BASE_URL + linkNode.getAttributeByName("href").toString().replaceAll("^.*cgi-bin/", ""));
+			URL billUrl = new URL(SIL_BASE_URL
+					+ linkNode.getAttributeByName("href").toString().replaceAll("^.*cgi-bin/", ""));
 			URLConnection billConnection = billUrl.openConnection();
 			TagNode billDocument = cleaner.clean(new InputStreamReader(billConnection.getInputStream(), "ISO-8859-1"));
 			Bill bill = parseBillDocument(billDocument);
@@ -112,6 +111,7 @@ public class BillParser {
 		String originChamber = spanDetalle[spanDetalle.length == 7 ? 3 : 4].getText().toString().trim();
 		String urgency = spanDetalle[spanDetalle.length == 7 ? 4 : 5].getText().toString().trim();
 		String stage = spanDetalle[spanDetalle.length == 7 ? 5 : 6].getText().toString().trim();
+		String substage = spanDetalle[spanDetalle.length == 7 ? 6 : 7].getText().toString().trim();
 
 		Bill bill = new Bill();
 		bill.setBulletinNumber(bulletinNumber);
@@ -119,58 +119,64 @@ public class BillParser {
 		bill.setEntryDate(entryDate);
 		bill.setInitiative(initiative);
 		bill.setType(type);
-		bill.setOriginChamber(originChamber);
+		bill.setOriginChamberName(originChamber);
 		bill.setUrgency(urgency);
-		bill.setStage(stage);
 		bill.setSummary(title);
+		bill.setStageName(stage);
+		bill.setSubstageName(substage);
 
 		TagNode linkLey = spanDetalle[spanDetalle.length == 7 ? 6 : 7].findElementByName("a", true);
 
 		if (linkLey != null) {
 			String bcnUrl = linkLey.getAttributeByName("onClick").replaceAll(".*'\\s*(http://.*?)',.*", "$1");
-			Long bcnId = (Long) nfLey.parse(linkLey.getText().toString().trim().replaceAll("Ley\\s+N.\\s*", "").replaceAll("D[\\.]{0,1}\\s*S[\\.]{0,1}\\s*(N.){0,1}\\s*", ""));
-			Date bcnDate = bcnUrl.matches(".*idVersion=\\d\\d\\d\\d-\\d\\d-\\d\\d") ? dfLey.parse(bcnUrl.replaceAll(".*idVersion=(\\d\\d\\d\\d-\\d\\d-\\d\\d)", "$1")) : null;
+			Long bcnId = (Long) nfLey.parse(linkLey.getText().toString().trim().replaceAll("Ley\\s+N.\\s*", "")
+					.replaceAll("D[\\.]{0,1}\\s*S[\\.]{0,1}\\s*(N.){0,1}\\s*", ""));
+			Date bcnDate = bcnUrl.matches(".*idVersion=\\d\\d\\d\\d-\\d\\d-\\d\\d") ? dfLey.parse(bcnUrl.replaceAll(
+					".*idVersion=(\\d\\d\\d\\d-\\d\\d-\\d\\d)", "$1")) : null;
 
 			if (bcnDate == null) {
 				try {
-					bcnDate = dfLeyAlt.parse(linkLey.getParent().getText().toString().trim().replaceAll(".*\\(D\\.Oficial: (\\d\\d/\\d\\d/\\d\\d)\\).*", "$1"));
+					bcnDate = dfLeyAlt.parse(linkLey.getParent().getText().toString().trim()
+							.replaceAll(".*\\(D\\.Oficial: (\\d\\d/\\d\\d/\\d\\d)\\).*", "$1"));
 				} catch (ParseException pe) {
 					System.err.println("WARN: No se pudo determinar fecha de publicación para esta ley o decreto");
 				}
 			}
 
 			if (bcnUrl.matches("^http://.*?/Navegar\\?idLey=.*")) {
-				bill.setLaw(bcnId);
-				bill.setLawUrl(bcnUrl);
-				bill.setPublishDate(bcnDate);
+				bill.setBcnLawId(bcnId);
+				bill.setBcnLawUrl(bcnUrl);
+				bill.setPublicationDate(bcnDate);
 			} else if (bcnUrl.matches("^http://.*?/Navegar\\?idNorma=.*")) {
 				bill.setDecree(bcnId);
 				bill.setDecreeUrl(bcnUrl);
-				bill.setPublishDate(bcnDate);
+				bill.setPublicationDate(bcnDate);
 			}
-		} else {
-			String substage = spanDetalle[spanDetalle.length == 7 ? 6 : 7].getText().toString().trim();
-			bill.setSubstage(substage);
 		}
 
-		Long internalNumber = Long.parseLong(billDocument.findElementByAttValue("target", "cont_if1", true, true).getAttributeByName("href").replaceAll(".*\\.pl\\?(\\d+).*", "$1"));
-		bill.setInternalNumber(internalNumber);
+		Long internalNumber = Long.parseLong(billDocument.findElementByAttValue("target", "cont_if1", true, true)
+				.getAttributeByName("href").replaceAll(".*\\.pl\\?(\\d+).*", "$1"));
+		bill.setSilIndicationsId(internalNumber);
+		bill.setSilOficiosId(internalNumber);
+		bill.setSilProcessingsId(internalNumber);
+		bill.setSilUrgenciesId(internalNumber);
 
 		bill.setUpdatedAt(new Date());
 		bill.setCreatedAt(bill.getUpdatedAt());
 
-		Set<Author> authors = new HashSet<Author>();
+		Set<Person> authors = new HashSet<Person>();
 		TagNode linkAuthor = billDocument.findElementByAttValue("onClick", "ima_ck('aut')", true, true);
 
 		if (linkAuthor != null) {
 			URL authorUrl = new URL(SIL_BASE_URL + linkAuthor.getAttributeByName("href"));
 			URLConnection authorConnection = authorUrl.openConnection();
-			TagNode authorDocument = cleaner.clean(new InputStreamReader(authorConnection.getInputStream(), "ISO-8859-1"));
+			TagNode authorDocument = cleaner.clean(new InputStreamReader(authorConnection.getInputStream(),
+					"ISO-8859-1"));
 			List<TagNode> authorCells = authorDocument.getElementListByAttValue("class", "TEXTarticulo", true, true);
 
 			for (TagNode authorSpan : authorCells) {
 				String[] authorNames = authorSpan.getText().toString().replaceAll("&nbsp;", "").split(", ");
-				Author author = new Author();
+				Person author = new Person();
 				author.setLastName(authorNames[0]);
 				author.setFirstName(authorNames[1]);
 				author.setUpdatedAt(new Date());
