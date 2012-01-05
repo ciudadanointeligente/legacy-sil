@@ -1,50 +1,63 @@
-<?xml version='1.0' encoding='utf-8'?>
-<!DOCTYPE hibernate-configuration PUBLIC
-		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
-		"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
-
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+                                         "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
-	<session-factory>
-
-		<!-- Database connection settings -->
-		<property name="connection.driver_class">com.mysql.jdbc.Driver</property>
-		<property name="connection.url">jdbc:mysql://localhost/legislativo</property>
-		<property name="connection.username">legislativo</property>
-		<property name="connection.password">legislativo</property>
-
-		<!-- JDBC connection pool (use the built-in) -->
-		<property name="connection.pool_size">1</property>
-
-		<property name="connection.charSet">ISO-8859-1</property>
-		<property name="connection.zeroDateTimeBehavior">convertToNull</property>
-
-		<!-- SQL dialect -->
-		<property name="dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
-
-		<property name="transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
-
-		<!-- Enable Hibernate's automatic session context management -->
-		<!-- TODO: Hibernate offers three methods of current session tracking. -->
-		<!-- The "thread" based method is not intended for production use; it is 
+ <session-factory name="">
+  <!-- Database connection settings -->
+  <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+  <property name="connection.url">jdbc:mysql://localhost/legislativo-api</property>
+  <property name="connection.username">legislativo-api</property>
+  <property name="connection.password">Puh7kaiF</property>
+  <!-- JDBC connection pool (use the built-in) -->
+  <property name="connection.pool_size">1</property>
+  <property name="connection.charSet">ISO-8859-1</property>
+  <property name="connection.zeroDateTimeBehavior">convertToNull</property>
+  <!-- SQL dialect -->
+  <property name="dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
+  <property name="transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
+  <!-- Enable Hibernate's automatic session context management 
+ TODO: Hibernate offers three methods of current session tracking. 
+ The "thread" based method is not intended for production use; it is 
 			merely useful for prototyping and tutorials such as this one. -->
-		<property name="current_session_context_class">thread</property>
-
-		<!-- Disable the second-level cache -->
-		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
-
-		<!-- Echo all executed SQL to stdout -->
-		<property name="show_sql">false</property>
-
-		<!-- Drop and re-create the database schema on startup -->
-		<property name="hbm2ddl.auto">validate</property>
-
-		<mapping class="cl.ciudadanointeligente.sil.model.Bill" />
-		<mapping class="cl.ciudadanointeligente.sil.model.Chamber" />
-		<mapping class="cl.ciudadanointeligente.sil.model.Participant" />
-		<mapping class="cl.ciudadanointeligente.sil.model.Person" />
-		<mapping class="cl.ciudadanointeligente.sil.model.Stage" />
-		<mapping class="cl.ciudadanointeligente.sil.model.StageDescription" />
-		<mapping class="cl.ciudadanointeligente.sil.model.Substage" />
-
-	</session-factory>
+  <property name="current_session_context_class">thread</property>
+  <!-- Disable the second-level cache -->
+  <property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+  <!-- Echo all executed SQL to stdout -->
+  <property name="show_sql">false</property>
+  <!-- Drop and re-create the database schema on startup -->
+  <property name="hbm2ddl.auto">validate</property>
+  <mapping class="cl.votainteligente.legislativo.model.Agrupation"/>
+  <mapping class="cl.votainteligente.legislativo.model.AgrupationAffiliation"/>
+  <mapping class="cl.votainteligente.legislativo.model.Bill"/>
+  <mapping class="cl.votainteligente.legislativo.model.Chamber"/>
+  <mapping class="cl.votainteligente.legislativo.model.Circunscription"/>
+  <mapping class="cl.votainteligente.legislativo.model.Coalition"/>
+  <mapping class="cl.votainteligente.legislativo.model.CoalitionAffiliation"/>
+  <mapping class="cl.votainteligente.legislativo.model.Commission"/>
+  <mapping class="cl.votainteligente.legislativo.model.CommissionType"/>
+  <mapping class="cl.votainteligente.legislativo.model.Committee"/>
+  <mapping class="cl.votainteligente.legislativo.model.Commune"/>
+  <mapping class="cl.votainteligente.legislativo.model.Debate"/>
+  <mapping class="cl.votainteligente.legislativo.model.DebateInCommission"/>
+  <mapping class="cl.votainteligente.legislativo.model.DiscussionType"/>
+  <mapping class="cl.votainteligente.legislativo.model.District"/>
+  <mapping class="cl.votainteligente.legislativo.model.GovernmentExecutive"/>
+  <mapping class="cl.votainteligente.legislativo.model.LegislatorRole"/>
+  <mapping class="cl.votainteligente.legislativo.model.Matter"/>
+  <mapping class="cl.votainteligente.legislativo.model.MergedBill"/>
+  <mapping class="cl.votainteligente.legislativo.model.Participant"/>
+  <mapping class="cl.votainteligente.legislativo.model.Party"/>
+  <mapping class="cl.votainteligente.legislativo.model.Person"/>
+  <mapping class="cl.votainteligente.legislativo.model.Region"/>
+  <mapping class="cl.votainteligente.legislativo.model.Role"/>
+  <mapping class="cl.votainteligente.legislativo.model.Session"/>
+  <mapping class="cl.votainteligente.legislativo.model.SessionChamber"/>
+  <mapping class="cl.votainteligente.legislativo.model.SessionCommission"/>
+  <mapping class="cl.votainteligente.legislativo.model.SingleVote"/>
+  <mapping class="cl.votainteligente.legislativo.model.Stage"/>
+  <mapping class="cl.votainteligente.legislativo.model.StageDescription"/>
+  <mapping class="cl.votainteligente.legislativo.model.Substage"/>
+  <mapping class="cl.votainteligente.legislativo.model.Tag"/>
+  <mapping class="cl.votainteligente.legislativo.model.Vote"/>
+ </session-factory>
 </hibernate-configuration>
