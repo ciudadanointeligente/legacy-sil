@@ -1,20 +1,23 @@
 package cl.ciudadanointeligente.sil;
 
-import cl.ciudadanointeligente.sil.model.Bill;
-import cl.ciudadanointeligente.sil.model.Chamber;
-import cl.ciudadanointeligente.sil.model.Person;
-import cl.ciudadanointeligente.sil.model.Stage;
-import cl.ciudadanointeligente.sil.model.StageDescription;
-import cl.ciudadanointeligente.sil.model.Substage;
-import cl.ciudadanointeligente.sil.parser.BillParser;
-import org.hibernate.Query;
-import org.hibernate.Session;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+
+import cl.ciudadanointeligente.sil.model.SilBill;
+import cl.ciudadanointeligente.sil.parser.BillParser;
+import cl.votainteligente.legislativo.model.Bill;
+import cl.votainteligente.legislativo.model.Chamber;
+import cl.votainteligente.legislativo.model.Person;
+import cl.votainteligente.legislativo.model.Stage;
+import cl.votainteligente.legislativo.model.StageDescription;
+import cl.votainteligente.legislativo.model.Substage;
 
 public class Sil {
 	static DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
@@ -50,10 +53,10 @@ public class Sil {
 
 		try {
 			if (bulletinNumber != null) {
-				Bill newBill = billParser.getBill(bulletinNumber);
+				SilBill newBill = billParser.getBill(bulletinNumber);
 				processBill(newBill);
 			} else {
-				for (Bill newBill : billParser.getBills(startDate, endDate)) {
+				for (SilBill newBill : billParser.getBills(startDate, endDate)) {
 					processBill(newBill);
 				}
 			}
@@ -63,10 +66,11 @@ public class Sil {
 		}
 	}
 
-	public static void processBill(Bill newBill) throws Throwable {
+	public static void processBill(SilBill newSilBill) throws Throwable {
 		Session session = HibernateUtil.getSession();
 
 		try {
+			Bill newBill = newSilBill.getBill();
 			session.beginTransaction();
 
 			Set<Person> authors = new HashSet<Person>();
@@ -98,14 +102,14 @@ public class Sil {
 			Stage newBillStage = new Stage();
 			Query stageDescriptionQuery = session
 					.createQuery("select sd from StageDescription sd where sd.description like upper(?)");
-			stageDescriptionQuery.setParameter(0, newBill.getStageName().toUpperCase());
+			stageDescriptionQuery.setParameter(0, newSilBill.getStageName().toUpperCase());
 			StageDescription stageDescription = (StageDescription) stageDescriptionQuery.uniqueResult();
 			if (stageDescription != null) {
 				newBillStage.setStageDescription(stageDescription);
 			} else {
 				StageDescription newStageDescription = new StageDescription();
 				session.save(newStageDescription);
-				newStageDescription.setDescription(newBill.getStageName());
+				newStageDescription.setDescription(newSilBill.getStageName());
 				newBillStage.setStageDescription(newStageDescription);
 			}
 			/*
@@ -116,7 +120,7 @@ public class Sil {
 			newBillStage.setEntryDate(new Date());
 			Substage newBillSubstage = new Substage();
 			newBillSubstage.setEntryDate(new Date());
-			newBillSubstage.setDescription(newBill.getSubstageName());
+			newBillSubstage.setDescription(newSilBill.getSubstageName());
 			newBillStage.setSubStages(new HashSet<Substage>());
 			newBillStage.getSubStages().add(newBillSubstage);
 			newBill.setStages(new HashSet<Stage>());
@@ -127,7 +131,7 @@ public class Sil {
 			 * chamber
 			 */
 			Query chamberQuery = session.createQuery("select c from Chamber c where c.name=?");
-			chamberQuery.setParameter(0, (newBill.getOriginChamberName().equals("Senado")) ? "Senado"
+			chamberQuery.setParameter(0, (newSilBill.getOriginChamberName().equals("Senado")) ? "Senado"
 					: "C. de Diputados");
 			Chamber chamber = (Chamber) chamberQuery.uniqueResult();
 			newBill.setOriginChamber(chamber);
@@ -161,7 +165,7 @@ public class Sil {
 					oldBill.setOriginChamber(newBill.getOriginChamber());
 					oldBill.setUrgency(newBill.getUrgency());
 					oldBill.setBcnLawId(newBill.getBcnLawId());
-					oldBill.setBcnLawUrl(newBill.getBcnLawUrl());
+					oldBill.setBcnLawURL(newBill.getBcnLawURL());
 					oldBill.setDecree(newBill.getDecree());
 					oldBill.setDecreeUrl(newBill.getDecreeUrl());
 					oldBill.setPublicationDate(newBill.getPublicationDate());

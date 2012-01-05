@@ -1,7 +1,9 @@
 package cl.ciudadanointeligente.sil.parser;
 
-import cl.ciudadanointeligente.sil.model.Bill;
-import cl.ciudadanointeligente.sil.model.Person;
+import cl.ciudadanointeligente.sil.model.SilBill;
+import cl.votainteligente.legislativo.model.Bill;
+import cl.votainteligente.legislativo.model.Person;
+
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import java.io.InputStreamReader;
@@ -43,12 +45,12 @@ public class BillParser {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Bill> getBills(Date startDate, Date endDate) throws Throwable {
+	public List<SilBill> getBills(Date startDate, Date endDate) throws Throwable {
 		if (startDate == null || endDate == null) {
 			throw new Exception("Fecha inválida");
 		}
 
-		List<Bill> bills = new ArrayList<Bill>();
+		List<SilBill> bills = new ArrayList<SilBill>();
 
 		String formattedStartDate = df.format(startDate);
 		String formattedEndDate = df.format(endDate);
@@ -69,14 +71,14 @@ public class BillParser {
 					+ linkNode.getAttributeByName("href").toString().replaceAll("^.*cgi-bin/", ""));
 			URLConnection billConnection = billUrl.openConnection();
 			TagNode billDocument = cleaner.clean(new InputStreamReader(billConnection.getInputStream(), "ISO-8859-1"));
-			Bill bill = parseBillDocument(billDocument);
+			SilBill bill = parseBillDocument(billDocument);
 			bills.add(bill);
 		}
 
 		return bills;
 	}
 
-	public Bill getBill(String searchBulletinNumber) throws Throwable {
+	public SilBill getBill(String searchBulletinNumber) throws Throwable {
 		if (searchBulletinNumber == null || searchBulletinNumber.length() == 0) {
 			throw new Exception("Boletín inválido");
 		}
@@ -94,7 +96,7 @@ public class BillParser {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Bill parseBillDocument(TagNode billDocument) throws Throwable {
+	public SilBill parseBillDocument(TagNode billDocument) throws Throwable {
 		TagNode spanNumBoletin = billDocument.findElementByAttValue("class", "azu", true, true);
 		TagNode spanTitulo = billDocument.findElementByAttValue("class", "TEXTpais", true, true);
 		TagNode[] spanDetalle = billDocument.getElementsByAttValue("class", "TEXTarticulo", true, true);
@@ -119,11 +121,13 @@ public class BillParser {
 		bill.setEntryDate(entryDate);
 		bill.setInitiative(initiative);
 		bill.setType(type);
-		bill.setOriginChamberName(originChamber);
 		bill.setUrgency(urgency);
 		bill.setSummary(title);
-		bill.setStageName(stage);
-		bill.setSubstageName(substage);
+		SilBill silBill = new SilBill();
+		silBill.setOriginChamberName(originChamber);
+		silBill.setStageName(stage);
+		silBill.setSubstageName(substage);
+		silBill.setBill(bill);
 
 		TagNode linkLey = spanDetalle[spanDetalle.length == 7 ? 6 : 7].findElementByName("a", true);
 
@@ -145,7 +149,7 @@ public class BillParser {
 
 			if (bcnUrl.matches("^http://.*?/Navegar\\?idLey=.*")) {
 				bill.setBcnLawId(bcnId);
-				bill.setBcnLawUrl(bcnUrl);
+				bill.setBcnLawURL(bcnUrl);
 				bill.setPublicationDate(bcnDate);
 			} else if (bcnUrl.matches("^http://.*?/Navegar\\?idNorma=.*")) {
 				bill.setDecree(bcnId);
@@ -189,6 +193,6 @@ public class BillParser {
 
 		bill.setAuthors(authors);
 
-		return bill;
+		return silBill;
 	}
 }
