@@ -3,7 +3,6 @@ package cl.ciudadanointeligente.sil.parser;
 import cl.ciudadanointeligente.sil.model.SilBill;
 import cl.votainteligente.legislativo.model.Bill;
 import cl.votainteligente.legislativo.model.Person;
-
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import java.io.InputStreamReader;
@@ -156,6 +155,13 @@ public class BillParser {
 				bill.setDecreeUrl(bcnUrl);
 				bill.setPublicationDate(bcnDate);
 			}
+		}
+		else {
+			silBill.setSubstageName(substage);
+		}
+
+		if(spanDetalle.length == 8) {
+			silBill.setMergedBulletinNumbers(spanDetalle[1].getText().toString().trim().split(" +"));
 		}
 
 		Long internalNumber = Long.parseLong(billDocument.findElementByAttValue("target", "cont_if1", true, true)

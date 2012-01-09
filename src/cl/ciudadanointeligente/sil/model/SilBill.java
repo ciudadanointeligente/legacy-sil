@@ -7,6 +7,7 @@ public class SilBill {
 	private String originChamberName;
 	private String stageName;
 	private String substageName;
+	private String[] mergedBulletinNumbers;
 
 	public Bill getBill() {
 		return bill;
@@ -38,6 +39,14 @@ public class SilBill {
 
 	public void setSubstageName(String substageName) {
 		this.substageName = substageName;
+	}
+
+	public String[] getMergedBulletinNumbers() {
+		return mergedBulletinNumbers;
+	}
+
+	public void setMergedBulletinNumbers(String[] mergedBulletinNumbers) {
+		this.mergedBulletinNumbers = mergedBulletinNumbers;
 	}
 
 }
