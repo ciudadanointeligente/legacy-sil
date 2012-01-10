@@ -16,63 +16,75 @@ public class Sil {
 	static DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 	static BillParser billParser = new BillParser();
 	static BillProcessor billProcessor = new BillProcessor(df);
-	static MergedBillProcessor mergedBillProcessor = new MergedBillProcessor(billProcessor, billParser);
-	public static void main(String[] args) throws Throwable {
-		Date startDate = null;
-		Date endDate = null;
-		String bulletinNumber = null;
+	static MergedBillProcessor mergedBillProcessor = new MergedBillProcessor(
+			billProcessor, billParser);
+	static Session session = HibernateUtil.getSession();
 
-		if (args.length == 0) {
-			startDate = new Date();
-			endDate = startDate;
-			System.out.println("Procesando: " + df.format(startDate));
-		} else if (args.length == 1) {
+	public static void main(String[] args) throws Throwable {
+		switch(args.length){
+		case 0:
+			Date today = new Date();
+			System.out.println("Procesando: " + df.format(today));
+			processTimeSpan(today, today);
+			break;
+		case 1:
 			try {
-				startDate = df.parse(args[0]);
-				endDate = startDate;
-				System.out.println("Procesando: " + df.format(startDate));
+				Date particularDate = df.parse(args[0]);
+				System.out.println("Procesando: " + df.format(particularDate));
+				processTimeSpan(particularDate,particularDate);
 			} catch (ParseException pex) {
-				bulletinNumber = args[0];
+				String bulletinNumber = args[0];
 				System.out.println("Procesando boletín: " + bulletinNumber);
+				processBulletin(bulletinNumber);
 			}
-		} else {
+			break;
+		default:
 			try {
-				startDate = df.parse(args[0]);
-				endDate = df.parse(args[1]);
-				System.out.println("Procesando: " + df.format(startDate) + " - " + df.format(endDate));
+				Date startDate = df.parse(args[0]);
+				Date endDate = df.parse(args[1]);
+				System.out.println("Procesando: " + df.format(startDate)
+						+ " - " + df.format(endDate));
+				processTimeSpan(startDate,endDate);
 			} catch (ParseException pex) {
 				System.err.println("Fecha inválida");
 			}
+			break;
 		}
-		Session session = HibernateUtil.getSession();
+	}
+
+	public static void processBulletin(String bulletinNumber) throws Throwable {
 		try {
 			session.beginTransaction();
-			if (bulletinNumber != null) {
-				SilBill newBill = billParser.getBill(bulletinNumber);
-				if(newBill.getMergedBulletinNumbers() != null) {
-					mergedBillProcessor.process(newBill, session);
-				}
-				else {
-					billProcessor.process(newBill,session);
-				}
-			}
-			else {
-				for (SilBill newBill : billParser.getBills(startDate, endDate)) {
-					if(newBill.getMergedBulletinNumbers() != null) {
-						mergedBillProcessor.process(newBill, session);
-					}
-					else {
-						billProcessor.process(newBill,session);
-					}
-				}
+			SilBill newBill = billParser.getBill(bulletinNumber);
+			if (newBill.getMergedBulletinNumbers() != null) {
+				mergedBillProcessor.process(newBill, session);
+			} else {
+				billProcessor.process(newBill, session);
 			}
 			session.getTransaction().commit();
-		}
-		catch (Throwable ex) {
+		} catch (Throwable ex) {
 			ex.printStackTrace(System.err);
 			session.getTransaction().rollback();
 			throw ex;
 		}
 	}
 
+	public static void processTimeSpan(Date startDate, Date endDate)
+			throws Throwable {
+		try {
+			session.beginTransaction();
+			for (SilBill newBill : billParser.getBills(startDate, endDate)) {
+				if (newBill.getMergedBulletinNumbers() != null) {
+					mergedBillProcessor.process(newBill, session);
+				} else {
+					billProcessor.process(newBill, session);
+				}
+			}
+			session.getTransaction().commit();
+		} catch (Throwable ex) {
+			ex.printStackTrace(System.err);
+			session.getTransaction().rollback();
+			throw ex;
+		}
+	}
 }
