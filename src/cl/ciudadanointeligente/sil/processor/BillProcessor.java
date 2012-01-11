@@ -4,11 +4,8 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.hibernate.Query;
 import org.hibernate.Session;
-
-import cl.ciudadanointeligente.sil.Sil;
 import cl.ciudadanointeligente.sil.model.SilBill;
 import cl.votainteligente.legislativo.model.Bill;
 import cl.votainteligente.legislativo.model.Chamber;
@@ -17,12 +14,16 @@ import cl.votainteligente.legislativo.model.Stage;
 import cl.votainteligente.legislativo.model.StageDescription;
 import cl.votainteligente.legislativo.model.Substage;
 
-public class BillProcessor implements Processor<SilBill,Bill>{
+public class BillProcessor implements Processor<SilBill, Bill> {
 	private DateFormat df;
-	public BillProcessor(DateFormat df){
-		this.df=df;
+	private boolean test;
+
+	public BillProcessor(DateFormat df, boolean test) {
+		this.df = df;
+		this.test = test;
 	}
-	public Bill process(SilBill newSilBill, Session session) throws Throwable{
+
+	public Bill process(SilBill newSilBill, Session session) throws Throwable {
 		Bill newBill = newSilBill.getBill();
 		Bill processedBill = null;
 		Set<Person> authors = new HashSet<Person>();
@@ -38,18 +39,20 @@ public class BillProcessor implements Processor<SilBill,Bill>{
 			personQuery.setParameter(1, newAuthor.getLastName().toUpperCase());
 			Person existingAuthor = (Person) personQuery.uniqueResult();
 			if (existingAuthor == null) {
-				session.save(newAuthor);
+				if (!test)
+					session.save(newAuthor);
 				authors.add(newAuthor);
 			} else {
-				session.save(existingAuthor);
+				if (!test)
+					session.save(existingAuthor);
 				authors.add(existingAuthor);
 			}
 		}
 		newBill.setAuthors(authors);
 
 		/*
-		 * if the stage description obtained from the Sil site is found in the database, the existing record is used
-		 * as the description for this bill's stage. if not, a new stage description record is added
+		 * if the stage description obtained from the Sil site is found in the database, the existing record is used as
+		 * the description for this bill's stage. if not, a new stage description record is added
 		 */
 		Stage newBillStage = new Stage();
 		Query stageDescriptionQuery = session
@@ -60,14 +63,15 @@ public class BillProcessor implements Processor<SilBill,Bill>{
 			newBillStage.setStageDescription(stageDescription);
 		} else {
 			StageDescription newStageDescription = new StageDescription();
-			session.save(newStageDescription);
+			if (!test)
+				session.save(newStageDescription);
 			newStageDescription.setDescription(newSilBill.getStageName());
 			newBillStage.setStageDescription(newStageDescription);
 		}
 		/*
-		 * we assume that the new bill entered its current stage and substage today. later, if the new bill is found
-		 * in the database, we check its existing stage records to make sure we don't duplicate them (and discard
-		 * the information obtained from the Sil site if necessary)
+		 * we assume that the new bill entered its current stage and substage today. later, if the new bill is found in
+		 * the database, we check its existing stage records to make sure we don't duplicate them (and discard the
+		 * information obtained from the Sil site if necessary)
 		 */
 		newBillStage.setEntryDate(new Date());
 		Substage newBillSubstage = new Substage();
@@ -79,12 +83,10 @@ public class BillProcessor implements Processor<SilBill,Bill>{
 		newBill.getStages().add(newBillStage);
 
 		/*
-		 * we obtain the correct Chamber object from the database and assign it to the new bill as its origin
-		 * chamber
+		 * we obtain the correct Chamber object from the database and assign it to the new bill as its origin chamber
 		 */
-		Query chamberQuery = session.createQuery("select c from Chamber c where c.name=?");
-		chamberQuery.setParameter(0, (newSilBill.getOriginChamberName().equals("Senado")) ? "Senado"
-				: "C. de Diputados");
+		Query chamberQuery = session.createQuery("select c from Chamber c where upper(c.name) like upper(?)");
+		chamberQuery.setParameter(0, (newSilBill.getOriginChamberName().equals("Senado")) ? "%SEN%" : "%DIP%");
 		Chamber chamber = (Chamber) chamberQuery.uniqueResult();
 		newBill.setOriginChamber(chamber);
 
@@ -93,8 +95,7 @@ public class BillProcessor implements Processor<SilBill,Bill>{
 		Bill oldBill = (Bill) billQuery.uniqueResult();
 
 		/*
-		 * if a bill with the same bulletin number is already stored in the database, it should be updated with new
-		 * info
+		 * if a bill with the same bulletin number is already stored in the database, it should be updated with new info
 		 */
 		if (oldBill != null) {
 			/*
@@ -137,14 +138,15 @@ public class BillProcessor implements Processor<SilBill,Bill>{
 						oldBill.setStages(new HashSet<Stage>());
 					}
 					oldBill.getStages().add(newBillStage);
-					session.save(newBillStage);
+					if (!test)
+						session.save(newBillStage);
 				} else {
 					/*
-					 * if there are stage records, there are two possible scenarios: 1. the current stage obtained
-					 * from the Sil site (newBillStage) is already recorded. in this case, we look for substage
-					 * records to update 2. the current stage obtained from the Sil site is not recorded. in this
-					 * case we should set an end date for the latest stage on record, and add the stage and
-					 * substage information from the site
+					 * if there are stage records, there are two possible scenarios: 1. the current stage obtained from
+					 * the Sil site (newBillStage) is already recorded. in this case, we look for substage records to
+					 * update 2. the current stage obtained from the Sil site is not recorded. in this case we should
+					 * set an end date for the latest stage on record, and add the stage and substage information from
+					 * the site
 					 */
 					boolean foundStage = false;
 					Stage lastStage = (Stage) oldBill.getStages().toArray()[0];
@@ -155,17 +157,19 @@ public class BillProcessor implements Processor<SilBill,Bill>{
 						if (oldStage.getStageDescription().getDescription()
 								.equals(newBillStage.getStageDescription().getDescription())) {
 							/*
-							 * oldBill has a stage on its history that matches the information obtained from the
-							 * site. we look for existing substages. if there are none, then we add the substage
-							 * obtained from the site to oldBill's records
+							 * oldBill has a stage on its history that matches the information obtained from the site.
+							 * we look for existing substages. if there are none, then we add the substage obtained from
+							 * the site to oldBill's records
 							 */
 							if (oldStage.getSubStages() == null || oldStage.getSubStages().isEmpty()) {
 								if (oldStage.getSubStages() == null) {
 									oldStage.setSubStages(new HashSet<Substage>());
 								}
 								oldStage.getSubStages().add(newBillSubstage);
-								session.save(newBillSubstage);
-								session.save(oldStage);
+								if (!test) {
+									session.save(newBillSubstage);
+									session.save(oldStage);
+								}
 							} else {
 								/*
 								 * if there are substages on oldBill's records, we check if the current substage
@@ -179,8 +183,7 @@ public class BillProcessor implements Processor<SilBill,Bill>{
 									}
 									if (oldSubstage.getDescription().equals(newBillSubstage.getDescription())) {
 										/*
-										 * newBillSubstage was found on oldBill's records, so nothing should be
-										 * updated
+										 * newBillSubstage was found on oldBill's records, so nothing should be updated
 										 */
 										foundSubstage = true;
 										break;
@@ -188,14 +191,16 @@ public class BillProcessor implements Processor<SilBill,Bill>{
 								}
 								if (!foundSubstage) {
 									/*
-									 * newBillSubstage was not found on oldBill's records. we set today as the end
-									 * date for the previous substage, and add newBillSubstage to oldBill as its
-									 * latest substage
+									 * newBillSubstage was not found on oldBill's records. we set today as the end date
+									 * for the previous substage, and add newBillSubstage to oldBill as its latest
+									 * substage
 									 */
 									lastSubstage.setEndDate(new Date());
 									oldStage.getSubStages().add(newBillSubstage);
-									session.save(newBillSubstage);
-									session.save(oldStage);
+									if (!test) {
+										session.save(newBillSubstage);
+										session.save(oldStage);
+									}
 								}
 							}
 							/*
@@ -208,12 +213,13 @@ public class BillProcessor implements Processor<SilBill,Bill>{
 					if (!foundStage) {
 						/*
 						 * newBillStage was not found on oldBill's records. we set today as the end date for the
-						 * previous stage, and add newBillStage to oldBill as its latest stage. newBill stage
-						 * contains newBillSubstage as its latest (and only) substage.
+						 * previous stage, and add newBillStage to oldBill as its latest stage. newBill stage contains
+						 * newBillSubstage as its latest (and only) substage.
 						 */
 						lastStage.setEndDate(new Date());
 						oldBill.getStages().add(newBillStage);
-						session.save(newBillStage);
+						if (!test)
+							session.save(newBillStage);
 					}
 				}
 				session.update(oldBill);
@@ -223,9 +229,11 @@ public class BillProcessor implements Processor<SilBill,Bill>{
 			/*
 			 * the bulletin number was not found. we save newBill's information
 			 */
-			session.save(newBillSubstage);
-			session.save(newBillStage);
-			session.save(newBill);
+			if (!test) {
+				session.save(newBillSubstage);
+				session.save(newBillStage);
+				session.save(newBill);
+			}
 			processedBill = newBill;
 		}
 

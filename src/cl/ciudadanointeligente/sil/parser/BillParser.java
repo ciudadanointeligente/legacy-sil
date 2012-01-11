@@ -155,12 +155,11 @@ public class BillParser {
 				bill.setDecreeUrl(bcnUrl);
 				bill.setPublicationDate(bcnDate);
 			}
-		}
-		else {
+		} else {
 			silBill.setSubstageName(substage);
 		}
 
-		if(spanDetalle.length == 8) {
+		if (spanDetalle.length == 8) {
 			silBill.setMergedBulletinNumbers(spanDetalle[1].getText().toString().trim().split(" +"));
 		}
 
