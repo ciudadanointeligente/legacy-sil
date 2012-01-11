@@ -2,30 +2,18 @@
 <!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
 	<session-factory name="">
-		<!-- Database connection settings -->
-		<property name="connection.driver_class">com.mysql.jdbc.Driver</property>
-		<property name="connection.url">jdbc:mysql://localhost/legislativo-api</property>
-		<property name="connection.username">legislativo-api</property>
-		<property name="connection.password">Puh7kaiF</property>
-		<!-- JDBC connection pool (use the built-in) -->
-		<property name="connection.pool_size">1</property>
-		<property name="connection.charSet">ISO-8859-1</property>
-		<property name="connection.zeroDateTimeBehavior">convertToNull</property>
-		<!-- SQL dialect -->
-		<property name="dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
-		<property name="transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
-		<!-- Enable Hibernate's automatic session context management TODO: Hibernate
-			offers three methods of current session tracking. The "thread" based method
-			is not intended for production use; it is merely useful for prototyping and
-			tutorials such as this one. -->
+	<property name="hibernate.connection.driver_class">org.hsqldb.jdbcDriver</property>
+		<property name="hibernate.connection.url">jdbc:hsqldb:mem:testdb;shutdown=false</property>
+		<property name="hibernate.connection.username">sa</property><!-- default username -->
+		<property name="hibernate.connection.password"/><!-- default password -->
+		<property name="hibernate.connection.pool_size">10</property>
+		<property name="hibernate.connection.autocommit">true</property>
+		<property name="hibernate.cache.provider_class">org.hibernate.cache.HashtableCacheProvider</property>
+		<property name="hibernate.hbm2ddl.auto">create-drop</property><!-- creates the tables from the entites automatically -->
+		<property name="show_sql">true</property>
+		<property name="dialect">org.hibernate.dialect.HSQLDialect</property>
 		<property name="current_session_context_class">thread</property>
-		<!-- Disable the second-level cache -->
-		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
-		<!-- Echo all executed SQL to stdout -->
-		<property name="show_sql">false</property>
-		<!-- Drop and re-create the database schema on startup -->
-		<property name="hbm2ddl.auto">validate</property>
-		<mapping class="cl.votainteligente.legislativo.model.Agrupation" />
+				<mapping class="cl.votainteligente.legislativo.model.Agrupation" />
 		<mapping class="cl.votainteligente.legislativo.model.AgrupationAffiliation" />
 		<mapping class="cl.votainteligente.legislativo.model.Bill" />
 		<mapping class="cl.votainteligente.legislativo.model.Chamber" />
