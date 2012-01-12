@@ -222,7 +222,8 @@ public class BillProcessor implements Processor<SilBill, Bill> {
 							session.save(newBillStage);
 					}
 				}
-				session.update(oldBill);
+				if (!test)
+					session.update(oldBill);
 				processedBill = oldBill;
 			}
 		} else {
