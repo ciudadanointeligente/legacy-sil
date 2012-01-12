@@ -20,51 +20,66 @@ public class Sil {
 	static Session session;
 
 	public static void main(String[] args) throws Throwable {
-		String[] newArgs;
-		boolean test = false;
-		if (args.length > 0 && args[args.length - 1].equals("-test")) {
-			test = true;
-			newArgs = new String[args.length - 1];
+		boolean test = isArgumentPresent(args, "-test");
+		if (test)
 			System.out.println("MODO TEST - no se guardará nada en la base de datos");
-		} else {
-			newArgs = new String[args.length];
-		}
 
 		session = HibernateUtil.getSession();
 		df = new SimpleDateFormat("dd/MM/yyyy");
 		billParser = new BillParser();
 		billProcessor = new BillProcessor(df, test);
-		mergedBillProcessor = new MergedBillProcessor(billProcessor, billParser, test);
-		for (int i = 0; i < newArgs.length; i++)
-			newArgs[i] = args[i];
+		mergedBillProcessor = new MergedBillProcessor(billProcessor,
+				billParser, test);
 
-		switch (newArgs.length) {
-		case 0:
-			Date today = new Date();
-			System.out.println("Procesando: " + df.format(today));
-			processTimeSpan(today, today);
-			break;
-		case 1:
-			try {
-				Date particularDate = df.parse(newArgs[0]);
-				System.out.println("Procesando: " + df.format(particularDate));
-				processTimeSpan(particularDate, particularDate);
-			} catch (ParseException pex) {
-				String bulletinNumber = newArgs[0];
-				System.out.println("Procesando boletín: " + bulletinNumber);
-				processBulletin(bulletinNumber);
-			}
-			break;
-		default:
-			try {
-				Date startDate = df.parse(newArgs[0]);
-				Date endDate = df.parse(newArgs[1]);
-				System.out.println("Procesando: " + df.format(startDate) + " - " + df.format(endDate));
-				processTimeSpan(startDate, endDate);
-			} catch (ParseException pex) {
-				System.err.println("Fecha inválida");
-			}
-			break;
+		// PROCESSING ARGUMENT
+		String bulletinNumber = getArgument(args, "-bulletin");
+
+		String startDateString = getArgument(args, "-startDate");
+		String endDateString = getArgument(args, "-endDate");
+
+		Date startDate = toDate(startDateString, df);
+		Date endDate = toDate(endDateString, df);
+		if (startDate == null)
+			startDate = new Date();
+		if (endDate == null)
+			endDate = startDate;
+
+		if (bulletinNumber != null) {
+			System.out.println("Procesando boletin: " + bulletinNumber);
+			processBulletin(bulletinNumber);
+		}
+		System.out.println("Procesando: " + df.format(startDate) + " - "
+				+ df.format(endDate));
+		processTimeSpan(startDate, endDate);
+
+	}
+
+	public static Date toDate(String date, DateFormat df) {
+		try {
+			return df.parse(date);
+		} catch (ParseException pex) {
+			System.err.println("Fecha " + date + " invalida.");
+			return null;
+		} catch (NullPointerException exc) {
+			return null;
+		}
+	}
+
+	public static boolean isArgumentPresent(String args[], String arg) {
+		for (String eachArg : args)
+			if (eachArg.equals(arg))
+				return true;
+		return false;
+	}
+
+	public static String getArgument(String args[], String arg) {
+		try {
+			for (int i = 0; i < args.length; i++)
+				if (args[i].equals(arg))
+					return args[i + 1];
+			return null;// not found
+		} catch (IndexOutOfBoundsException e) {
+			return null;// argument name was present but there was no value
 		}
 	}
 
@@ -85,7 +100,8 @@ public class Sil {
 		}
 	}
 
-	public static void processTimeSpan(Date startDate, Date endDate) throws Throwable {
+	public static void processTimeSpan(Date startDate, Date endDate)
+			throws Throwable {
 		try {
 			session.beginTransaction();
 			for (SilBill newBill : billParser.getBills(startDate, endDate)) {
