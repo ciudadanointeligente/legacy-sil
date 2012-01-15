@@ -6,9 +6,14 @@ public class SilVote {
 	private Vote vote;
 	private String[] noVotes;
 	private String[] yesVotes;
-	private String[] absentVotes;
+	private String[] abstentionVotes;
 	private String[] dispensed;
-	private String billId;
+	private String[] paredVotes;
+	private String tittle;
+	private String article;
+	private String matter;
+	private String stage;
+	private String result;
 
 	public Vote getVote() {
 		return vote;
@@ -34,12 +39,12 @@ public class SilVote {
 		this.yesVotes = yesVotes;
 	}
 
-	public String[] getAbsentVotes() {
-		return absentVotes;
+	public String[] getAbstentionVotes() {
+		return abstentionVotes;
 	}
 
-	public void setAbsentVotes(String[] absentVotes) {
-		this.absentVotes = absentVotes;
+	public void setAbstentionVotes(String[] absentVotes) {
+		this.abstentionVotes = absentVotes;
 	}
 
 	public String[] getDispensed() {
@@ -50,12 +55,52 @@ public class SilVote {
 		this.dispensed = dispensed;
 	}
 
-	public String getBillId() {
-		return billId;
+	public void setParedVotes(String[] paredVotes) {
+		this.paredVotes = paredVotes;
 	}
 
-	public void setBillId(String billId) {
-		this.billId = billId;
+	public String[] getParedVotes() {
+		return paredVotes;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
+	}
+
+	public String getResult() {
+		return result;
+	}
+
+	public void setTittle(String tittle) {
+		this.tittle = tittle;
+	}
+
+	public String getTittle() {
+		return tittle;
+	}
+
+	public void setArticle(String article) {
+		this.article = article;
+	}
+
+	public String getArticle() {
+		return article;
+	}
+
+	public void setStage(String stage) {
+		this.stage = stage;
+	}
+
+	public String getStage() {
+		return stage;
+	}
+
+	public void setMatter(String matter) {
+		this.matter = matter;
+	}
+
+	public String getMatter() {
+		return matter;
 	}
 
 }
