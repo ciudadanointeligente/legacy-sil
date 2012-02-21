@@ -1,24 +1,22 @@
 package cl.ciudadanointeligente.sil.tests;
 
-import java.util.Date;
-import java.text.SimpleDateFormat;
-import org.junit.Assert;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.AnnotationConfiguration;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import cl.votainteligente.legislativo.model.Bill;
+import cl.votainteligente.legislativo.model.Chamber;
+import cl.votainteligente.legislativo.model.Stage;
+
 import cl.ciudadanointeligente.sil.model.SilBill;
 import cl.ciudadanointeligente.sil.parser.BillParser;
 import cl.ciudadanointeligente.sil.processor.BillProcessor;
 import cl.ciudadanointeligente.sil.processor.MergedBillProcessor;
-import cl.votainteligente.legislativo.model.Bill;
-import cl.votainteligente.legislativo.model.Chamber;
-import cl.votainteligente.legislativo.model.Stage;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.AnnotationConfiguration;
+import org.junit.*;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -31,7 +29,7 @@ public class TestBillParser {
 	private String testBulletinNumberTest;
 	private String testBulletinNumberStageChange;
 	private HashSet<String> mergedBulletinNumbers, dateRangeBulletinNumbers;
-	private SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+	private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 	private static BillParser billParser = new BillParser();
 	private static BillProcessor billProcessor = new BillProcessor(new SimpleDateFormat("dd/MM/yyyy"), false);
 	private static MergedBillProcessor mergedBillProcessor = new MergedBillProcessor(billProcessor, billParser, false);
@@ -103,6 +101,7 @@ public class TestBillParser {
 			Date from = dateFormat.parse("03-01-2012");
 			Date to = dateFormat.parse("05-01-2012");
 			session.beginTransaction();
+
 			for (SilBill silBill : billParser.getBills(from, to)) {
 				if (silBill.getMergedBulletinNumbers() != null) {
 					mergedBillProcessor.process(silBill, session);
@@ -110,12 +109,12 @@ public class TestBillParser {
 					billProcessor.process(silBill, session);
 				}
 			}
-			Query savedBillsQuery = session
-					.createQuery("select b from Bill b where b.entryDate >= ? and b.entryDate <= ?");
+			Query savedBillsQuery = session.createQuery("select b from Bill b where b.entryDate >= ? and b.entryDate <= ?");
 			savedBillsQuery.setDate(0, from);
 			savedBillsQuery.setDate(1, to);
-			List<Bill> savedBills = (List<Bill>) savedBillsQuery.list();
+			List<Bill> savedBills = savedBillsQuery.list();
 			session.getTransaction().commit();
+
 			for (Bill savedBill : savedBills) {
 				Assert.assertTrue(dateRangeBulletinNumbers.contains(savedBill.getBulletinNumber()));
 			}
@@ -137,8 +136,7 @@ public class TestBillParser {
 			session.getTransaction().commit();
 			Assert.assertNotNull(savedBill);
 			Assert.assertEquals(testBulletinNumber, savedBill.getBulletinNumber());
-			Assert.assertEquals("Declara el 29 de noviembre como día nacional del niño y niña nacidos prematuro.",
-					savedBill.getTitle().trim());
+			Assert.assertEquals("Declara el 29 de noviembre como día nacional del niño y niña nacidos prematuro.", savedBill.getTitle().trim());
 			Assert.assertEquals(dateFormat.parse("04-10-2011"), savedBill.getEntryDate());
 			Assert.assertEquals(9, savedBill.getAuthors().size());
 			Assert.assertEquals("Moción", savedBill.getInitiative().trim());
@@ -146,8 +144,7 @@ public class TestBillParser {
 			Assert.assertEquals("Proyecto de ley", savedBill.getType().trim());
 			Stage[] savedBillStages = savedBill.getStages().toArray(new Stage[0]);
 			Assert.assertEquals("Tramitación terminada", savedBillStages[0].getStageDescription().getDescription());
-			Assert.assertEquals("http://www.leychile.cl/Navegar?idLey=20558&idVersion=2012-01-07",
-					savedBill.getBcnLawURL());
+			Assert.assertEquals("http://www.leychile.cl/Navegar?idLey=20558&idVersion=2012-01-07", savedBill.getBcnLawURL());
 			Assert.assertEquals(new Long(20558), savedBill.getBcnLawId());
 		} catch (Throwable ex) {
 			ex.printStackTrace();
@@ -160,6 +157,7 @@ public class TestBillParser {
 		try {
 			session.beginTransaction();
 			SilBill silBill = billParser.getBill(testBulletinNumberMerged);
+
 			if (silBill.getMergedBulletinNumbers() != null) {
 				mergedBillProcessor.process(silBill, session);
 			}
@@ -167,6 +165,7 @@ public class TestBillParser {
 			billQuery.setParameter(0, testBulletinNumberMerged);
 			Bill savedBill = (Bill) billQuery.uniqueResult();
 			session.getTransaction().commit();
+
 			for (Bill mergedBill : savedBill.getMergedBills().getBills()) {
 				Assert.assertTrue(mergedBulletinNumbers.contains(mergedBill.getBulletinNumber()));
 			}
