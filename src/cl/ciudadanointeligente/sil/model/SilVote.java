@@ -55,52 +55,51 @@ public class SilVote {
 		this.dispensed = dispensed;
 	}
 
-	public void setParedVotes(String[] paredVotes) {
-		this.paredVotes = paredVotes;
-	}
-
 	public String[] getParedVotes() {
 		return paredVotes;
 	}
 
-	public void setResult(String result) {
-		this.result = result;
-	}
-
-	public String getResult() {
-		return result;
-	}
-
-	public void setTittle(String tittle) {
-		this.tittle = tittle;
+	public void setParedVotes(String[] paredVotes) {
+		this.paredVotes = paredVotes;
 	}
 
 	public String getTittle() {
 		return tittle;
 	}
 
-	public void setArticle(String article) {
-		this.article = article;
+	public void setTittle(String tittle) {
+		this.tittle = tittle;
 	}
 
 	public String getArticle() {
 		return article;
 	}
 
-	public void setStage(String stage) {
-		this.stage = stage;
-	}
-
-	public String getStage() {
-		return stage;
-	}
-
-	public void setMatter(String matter) {
-		this.matter = matter;
+	public void setArticle(String article) {
+		this.article = article;
 	}
 
 	public String getMatter() {
 		return matter;
 	}
 
+	public void setMatter(String matter) {
+		this.matter = matter;
+	}
+
+	public String getStage() {
+		return stage;
+	}
+
+	public void setStage(String stage) {
+		this.stage = stage;
+	}
+
+	public String getResult() {
+		return result;
+	}
+
+	public void setResult(String result) {
+		this.result = result;
+	}
 }

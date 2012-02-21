@@ -48,5 +48,4 @@ public class SilBill {
 	public void setMergedBulletinNumbers(String[] mergedBulletinNumbers) {
 		this.mergedBulletinNumbers = mergedBulletinNumbers;
 	}
-
 }

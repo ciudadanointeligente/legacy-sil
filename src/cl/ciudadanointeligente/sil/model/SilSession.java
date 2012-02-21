@@ -1,8 +1,8 @@
 package cl.ciudadanointeligente.sil.model;
 
-import java.util.List;
-
 import cl.votainteligente.legislativo.model.Session;
+
+import java.util.List;
 
 public class SilSession {
 	private Session session;
@@ -27,28 +27,27 @@ public class SilSession {
 		this.chamber = chamber;
 	}
 
-	public void setDate(String date) {
-		this.date = date;
-	}
-
 	public String getDate() {
 		return date;
 	}
 
-	public void setAssistants(String[][] assistants) {
-		this.assistants = assistants;
+	public void setDate(String date) {
+		this.date = date;
 	}
 
 	public String[][] getAssistants() {
 		return assistants;
 	}
 
-	public void setVotes(List<SilVote> votes) {
-		this.votes = votes;
+	public void setAssistants(String[][] assistants) {
+		this.assistants = assistants;
 	}
 
 	public List<SilVote> getVotes() {
 		return votes;
 	}
 
+	public void setVotes(List<SilVote> votes) {
+		this.votes = votes;
+	}
 }
