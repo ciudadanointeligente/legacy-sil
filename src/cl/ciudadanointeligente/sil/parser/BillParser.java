@@ -1,38 +1,31 @@
 package cl.ciudadanointeligente.sil.parser;
 
-import cl.ciudadanointeligente.sil.model.SilBill;
 import cl.votainteligente.legislativo.model.Bill;
 import cl.votainteligente.legislativo.model.Person;
+
+import cl.ciudadanointeligente.sil.model.SilBill;
+
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
+
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.text.*;
+import java.util.*;
 
 public class BillParser {
 	private final String SIL_BASE_URL = "http://sil.senado.cl/cgi-bin/";
 	private final String SIL_BILL_SUMMARY_URL = SIL_BASE_URL + "sil_ultproy.pl";
 	private final String SIL_BILL_URL = SIL_BASE_URL + "sil_proyectos.pl";
 
-	private DateFormat df;
-	private DateFormat bdf;
-	private DateFormat dfLey;
-	private DateFormat dfLeyAlt;
-	private NumberFormat nfLey;
-	private HtmlCleaner cleaner;
+	private final DateFormat df;
+	private final DateFormat bdf;
+	private final DateFormat dfLey;
+	private final DateFormat dfLeyAlt;
+	private final NumberFormat nfLey;
+	private final HtmlCleaner cleaner;
 
 	public BillParser() {
 		df = new SimpleDateFormat("dd/MM/yyyy");
@@ -66,8 +59,7 @@ public class BillParser {
 
 		for (TagNode linkCell : linkCells) {
 			TagNode linkNode = linkCell.findElementByName("a", true);
-			URL billUrl = new URL(SIL_BASE_URL
-					+ linkNode.getAttributeByName("href").toString().replaceAll("^.*cgi-bin/", ""));
+			URL billUrl = new URL(SIL_BASE_URL + linkNode.getAttributeByName("href").toString().replaceAll("^.*cgi-bin/", ""));
 			URLConnection billConnection = billUrl.openConnection();
 			TagNode billDocument = cleaner.clean(new InputStreamReader(billConnection.getInputStream(), "ISO-8859-1"));
 			SilBill bill = parseBillDocument(billDocument);
@@ -132,15 +124,12 @@ public class BillParser {
 
 		if (linkLey != null) {
 			String bcnUrl = linkLey.getAttributeByName("onClick").replaceAll(".*'\\s*(http://.*?)',.*", "$1");
-			Long bcnId = (Long) nfLey.parse(linkLey.getText().toString().trim().replaceAll("Ley\\s+N.\\s*", "")
-					.replaceAll("D[\\.]{0,1}\\s*S[\\.]{0,1}\\s*(N.){0,1}\\s*", ""));
-			Date bcnDate = bcnUrl.matches(".*idVersion=\\d\\d\\d\\d-\\d\\d-\\d\\d") ? dfLey.parse(bcnUrl.replaceAll(
-					".*idVersion=(\\d\\d\\d\\d-\\d\\d-\\d\\d)", "$1")) : null;
+			Long bcnId = (Long) nfLey.parse(linkLey.getText().toString().trim().replaceAll("Ley\\s+N.\\s*", "").replaceAll("D[\\.]{0,1}\\s*S[\\.]{0,1}\\s*(N.){0,1}\\s*", ""));
+			Date bcnDate = bcnUrl.matches(".*idVersion=\\d\\d\\d\\d-\\d\\d-\\d\\d") ? dfLey.parse(bcnUrl.replaceAll(".*idVersion=(\\d\\d\\d\\d-\\d\\d-\\d\\d)", "$1")) : null;
 
 			if (bcnDate == null) {
 				try {
-					bcnDate = dfLeyAlt.parse(linkLey.getParent().getText().toString().trim()
-							.replaceAll(".*\\(D\\.Oficial: (\\d\\d/\\d\\d/\\d\\d)\\).*", "$1"));
+					bcnDate = dfLeyAlt.parse(linkLey.getParent().getText().toString().trim().replaceAll(".*\\(D\\.Oficial: (\\d\\d/\\d\\d/\\d\\d)\\).*", "$1"));
 				} catch (ParseException pe) {
 					System.err.println("WARN: No se pudo determinar fecha de publicación para esta ley o decreto");
 				}
@@ -163,8 +152,7 @@ public class BillParser {
 			silBill.setMergedBulletinNumbers(spanDetalle[1].getText().toString().trim().split(" +"));
 		}
 
-		Long internalNumber = Long.parseLong(billDocument.findElementByAttValue("target", "cont_if1", true, true)
-				.getAttributeByName("href").replaceAll(".*\\.pl\\?(\\d+).*", "$1"));
+		Long internalNumber = Long.parseLong(billDocument.findElementByAttValue("target", "cont_if1", true, true).getAttributeByName("href").replaceAll(".*\\.pl\\?(\\d+).*", "$1"));
 		bill.setSilIndicationsId(internalNumber);
 		bill.setSilOficiosId(internalNumber);
 		bill.setSilProcessingsId(internalNumber);
@@ -179,8 +167,7 @@ public class BillParser {
 		if (linkAuthor != null) {
 			URL authorUrl = new URL(SIL_BASE_URL + linkAuthor.getAttributeByName("href"));
 			URLConnection authorConnection = authorUrl.openConnection();
-			TagNode authorDocument = cleaner.clean(new InputStreamReader(authorConnection.getInputStream(),
-					"ISO-8859-1"));
+			TagNode authorDocument = cleaner.clean(new InputStreamReader(authorConnection.getInputStream(), "ISO-8859-1"));
 			List<TagNode> authorCells = authorDocument.getElementListByAttValue("class", "TEXTarticulo", true, true);
 
 			for (TagNode authorSpan : authorCells) {
@@ -190,14 +177,11 @@ public class BillParser {
 				author.setFirstName(authorNames[1]);
 				author.setUpdatedAt(new Date());
 				author.setCreatedAt(author.getUpdatedAt());
-
 				authors.add(author);
 			}
-
 		}
 
 		bill.setAuthors(authors);
-
 		return silBill;
 	}
 }
